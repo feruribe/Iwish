@@ -1,9 +1,11 @@
 package com.herprogramacion.iwish.ui.actividades;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import com.herprogramacion.iwish.BD.ModelDB;
 import com.herprogramacion.iwish.R;
 import com.herprogramacion.iwish.tools.Constantes;
 import com.herprogramacion.iwish.ui.fragmentos.MainFragment;
@@ -16,12 +18,15 @@ import com.herprogramacion.iwish.ui.fragmentos.MainFragment;
  * en versiones antiguas.
  */
 public class MainActivity extends AppCompatActivity {
-
+    ModelDB base;
+    SQLiteDatabase db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        base = new ModelDB(MainActivity.this);
+        db = base.getDB();
         // Creación del fragmento principal
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
