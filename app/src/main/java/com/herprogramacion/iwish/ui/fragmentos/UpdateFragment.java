@@ -1,6 +1,8 @@
 package com.herprogramacion.iwish.ui.fragmentos;
 
 import android.app.Activity;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -19,11 +21,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.gson.Gson;
+import com.herprogramacion.iwish.BD.ModelDB;
 import com.herprogramacion.iwish.R;
 import com.herprogramacion.iwish.modelo.Meta;
 import com.herprogramacion.iwish.tools.Constantes;
 import com.herprogramacion.iwish.web.VolleySingleton;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,6 +44,7 @@ public class UpdateFragment extends Fragment {
      */
     private static final String TAG = UpdateFragment.class.getSimpleName();
 
+    DetailFragment df;
     /*
     Controles
     */
@@ -140,7 +145,8 @@ public class UpdateFragment extends Fragment {
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Log.d(TAG, "Error Volley: " + error.getMessage());
+                          Procesar_sinInternet(ConvertiraJson(idMeta));
+                Toast.makeText(getActivity(), "Trabajando sin conexión", Toast.LENGTH_SHORT).show();
                             }
                         }
                 )
@@ -180,6 +186,14 @@ public class UpdateFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void Procesar_sinInternet(JSONObject response) {
+        // Guardar instancia
+                    metaOriginal = gson.fromJson(response.toString(), Meta.class);
+                    // Setear valores de la meta
+                    cargarViews(metaOriginal);
+
     }
 
     /**
@@ -223,6 +237,40 @@ public class UpdateFragment extends Fragment {
 
         // Setear selección del Spinner de prioridades
         prioridad_spinner.setSelection(posicion_prioridad);
+    }
+
+    public JSONObject ConvertiraJson(String idMeta){
+        SQLiteDatabase db;
+        ModelDB base = new ModelDB(getActivity());
+        db = base.getDB();
+        Cursor cursor = db.rawQuery("SELECT  * FROM metas where idMeta=" + idMeta, null);
+        JSONArray resultSet = new JSONArray();
+        JSONObject rowObject = new JSONObject();
+        cursor.moveToFirst();
+        while (cursor.isAfterLast() == false) {
+            int totalColumn = cursor.getColumnCount();
+
+            for( int i=0 ;  i< totalColumn ; i++ ){
+                if( cursor.getColumnName(i) != null ){
+                    try {
+                        if( cursor.getString(i) != null ) {
+                            rowObject.put(cursor.getColumnName(i) ,cursor.getString(i) );
+                        }
+                        else {
+                            rowObject.put( cursor.getColumnName(i) ,  "" );
+                        }
+                    } catch( Exception e ) {
+                        Log.d("Exception json", e.getMessage());
+                    }
+                }
+            }
+            resultSet.put(rowObject);
+            cursor.moveToNext();
+        }
+        cursor.close();
+        db.close();
+        Log.d("Final Json Update", rowObject.toString());
+        return rowObject;
     }
 
     /**

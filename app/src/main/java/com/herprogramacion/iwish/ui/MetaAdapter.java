@@ -3,7 +3,6 @@ package com.herprogramacion.iwish.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,8 +55,6 @@ public class MetaAdapter extends RecyclerView.Adapter<MetaAdapter.MetaViewHolder
         viewHolder.prioridad.setText(items.get(i).getPrioridad());
         viewHolder.fechaLim.setText(items.get(i).getFechaLim());
         viewHolder.categoria.setText(items.get(i).getCategoria());
-
-
     }
 
     /**
@@ -70,6 +67,8 @@ public class MetaAdapter extends RecyclerView.Adapter<MetaAdapter.MetaViewHolder
     public void onItemClick(View view, int position) {
         DetailActivity.launch(
                 (Activity) context, items.get(position).getIdMeta());
+
+
     }
 
 
